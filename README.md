@@ -41,7 +41,7 @@ Agora, você pode oferecer aos seus clientes a opção de pagar com BrasilCash e
 
 ## Suporte
 
-Se você tiver alguma dúvida ou precisar de suporte, sinta-se à vontade para entrar em contato conosco em [seu-site.com/contato](http://seu-site.com/contato).
+Se você tiver alguma dúvida ou precisar de suporte, sinta-se à vontade para entrar em contato conosco em [brasilcash.com.br/contato](https://brasilcash.com.br/contato).
 
 ## Contribuições
 
