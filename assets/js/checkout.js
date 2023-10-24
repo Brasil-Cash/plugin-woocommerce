@@ -1,0 +1,47 @@
+
+const bcErrorCallback = function( data ) {
+    console.log( data )
+}
+
+jQuery(document).ready(function($) {
+    $('#bcpag_payment_method_area_credit_card').hide();
+    $('#bcpag_payment_method_area_pix').hide();
+    $('#bcpag_payment_method_area_boleto').hide();
+
+    window.bcpagChangeViewArea = () => {
+        $('#bcpag_payment_method_area_credit_card').hide();
+        $('#bcpag_payment_method_area_pix').hide();
+        $('#bcpag_payment_method_area_boleto').hide();
+        $('#bc-installments-area').hide();
+        $('#bcpag_payment_method_area_cards').hide();
+        
+
+        var selectedValue = $('input[name="bc_payment_method"]:checked').val();
+        
+        if (selectedValue === 'credit_card') {
+            if ($('#bcpag_payment_method_area_cards').length) {
+                $('#bcpag_payment_method_area_cards').show();
+                $('#bcpag_payment_method_area_credit_card').hide();
+                $('#bc-installments-area').show();
+
+                $('#bc-new-card').parent().show();
+
+                $('#bc-new-card').click(function() {
+                    $('#bcpag_payment_method_area_cards').hide();
+                    $('#bcpag_payment_method_area_credit_card').show();
+                    $(this).parent().hide();
+                });
+
+            } else {
+                $('#bcpag_payment_method_area_credit_card').show();
+                $('#bc-installments-area').show();
+            }
+
+            
+        } else if (selectedValue === 'pix') {
+            $('#bcpag_payment_method_area_pix').show();
+        } else if (selectedValue === 'boleto') {
+            $('#bcpag_payment_method_area_boleto').show();
+        }
+    }
+});

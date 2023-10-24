@@ -1,0 +1,21 @@
+{
+    "name": "nogue/bcpag-woo",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Bcpag\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "allex nogue",
+            "email": "dev@nogue.dev"
+        }
+    ],
+    "require": {
+        "analog/analog": "^1.0",
+        "mashape/unirest-php": "^3.0",
+        "chillerlan/php-qrcode": "^4.3",
+        "picqer/php-barcode-generator": "^2.4"
+    }
+}
