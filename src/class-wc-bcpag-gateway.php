@@ -71,12 +71,27 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
         $this->gateway = $gateway;
 
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-
         add_action('wp_enqueue_scripts', array($this, 'payment_scripts'));
-
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_script'));
         // You can also register a webhook here
         // add_action( 'woocommerce_api_{webhook name}', array( $this, 'webhook' ) );
 
+    }
+
+    public function process_admin_options()
+    {
+        parent::process_admin_options();
+        var_dump($_POST);
+        die();
+        $this->save_installment_settings();
+    }
+
+    protected function save_installment_settings()
+    {
+        $installment_percentages = isset($_POST['installment_percentage']) ? $_POST['installment_percentage'] : array();
+
+        // Salva as taxas percentuais das parcelas
+        $this->update_option('installment_percentage', $installment_percentages);
     }
 
     public function getGateway() : Gateway {
@@ -123,6 +138,9 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
         wp_enqueue_script('woocommerce_bcpag', plugin_dir_url(__FILE__) . '../assets/js/checkout.js', array('jquery'), microtime(true), true);
     }
 
+    public function enqueue_admin_script() { 
+        wp_enqueue_script('woocommerce_bcpag', plugin_dir_url(__FILE__) . '../assets/js/admin.js', array('jquery'), microtime(true), true); 
+    }
 
     public function validate_fields()
     {

@@ -82,6 +82,21 @@ class  BcpagAdmin {
                     11  => '11 parcelas',
                     12  => '12 parcelas',
                 ),
+                
+            ), 
+            'btn_installments2' => [
+                'title' => 'Parcelas',
+                'type' => 'button', 
+                'default' => 'Adicionar regra de parcela',
+            ],
+            'installments_rules' => array( 
+                'type' => 'hidden',
+                'css' => '',
+                'std' => '',
+                'desc' => __('JavaScript to handle dynamic addition of installment fields.'),
+                'custom_attributes' => array(
+                    'readonly' => 'readonly',
+                ),
             ),
             'enable_capture' => array(
                 'title'       => 'Captura de Pagamento',

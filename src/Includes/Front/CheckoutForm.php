@@ -189,8 +189,8 @@ class CheckoutForm
     {
         $html = '';
 
-        if ($this->options->enable_installments) {
-            $totalCart = WC()->cart->get_cart_contents_total();
+        if ($this->options->enable_installments) {  
+            $totalCart = WC()->cart->get_total('total');
             $html = '<div class="form-row form-row-wide py-0" id="bc-installments-area">
             <label>Parcelas <span class="required">*</span></label>
             <select style="width: 100%; border-color: #e1e1e1; padding: 15px 0;" id="bcpag_installments" name="bc_card_installments">';
