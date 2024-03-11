@@ -3,9 +3,9 @@
  * Plugin Name: Gateway Brasil Cash - WooCommerce
  * Plugin URI: https://docs.brasilcash.com.br/bcpag/plugins
  * Description: Receba pagamentos online de forma segura no seu ecommerce com a Brasil Cash.
- * Author: Allex Nogue
- * Author URI: https://nogue.dev
- * Version: 1.0.0
+ * Author: Brasil Cash
+ * Author URI: https://brasilcash.com.br
+ * Version: 1.1.0
  */
 
 use Analog\Analog;

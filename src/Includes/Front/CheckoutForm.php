@@ -10,7 +10,8 @@ class CheckoutForm
 
     public function __construct(\WC_Bcpag_Gateway $options = null)
     {
-        $this->options = $options;
+        
+        $this->options = (object) $options->settings;
     }
 
     public function build()
@@ -189,18 +190,26 @@ class CheckoutForm
     {
         $html = '';
 
+
         if ($this->options->enable_installments) {  
             $totalCart = WC()->cart->get_total('total');
             $html = '<div class="form-row form-row-wide py-0" id="bc-installments-area">
             <label>Parcelas <span class="required">*</span></label>
             <select style="width: 100%; border-color: #e1e1e1; padding: 15px 0;" id="bcpag_installments" name="bc_card_installments">';
 
-            for ($i = 1; $i <= $this->options->max_installments; $i++) {
-                if ($i == 1) {
-                    $html .= '<option selected value="' . $i . '">À Vista</option>';
-                } else {
-                    $html .= '<option value="' . $i . '">' . $i . 'x de ' . wc_price($totalCart / $i) . '</option>';
+            foreach ($this->options->installment_percentage as $installment => $_tax) {
+                $selected = ($installment == 1) ? 'selected' : '';
+                $tax = (!empty($_tax) && $_tax > 0) ? 'com juros de ' . $_tax . '%' : 'sem juros';
+
+                $amount = wc_price($totalCart / $installment);
+
+                if (!empty($_tax) && $_tax > 0) {
+                    $total = $totalCart;
+                    $totalTax = ($total * ($_tax/100));
+                    $amount = wc_price(($totalCart + $totalTax) / $installment);
                 }
+
+                $html .= '<option value="' . $installment . '" '.$selected.' >' . $installment . 'x de ' . $amount . ' ' . $tax .'</option>';
             }
 
             $html .= '</select></div>';

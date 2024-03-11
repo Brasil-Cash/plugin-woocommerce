@@ -26,7 +26,7 @@ class Payment {
 
     public function getPaymentData(OrderService $order, RequestService $request)  : ResourceResponse
     {
-        return $this->paymentInstance->getPayRequest($order, $request);
+        return $this->paymentInstance->getPayRequest($order, $request,  $this->gateway);
     }
 
     public function refund($transaction_id, $amount) {

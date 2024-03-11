@@ -20,6 +20,18 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
 
     protected Gateway $gateway;
 
+    protected $testmode;
+    protected $private_key;
+    protected $enable_credit_card;
+    protected $enable_installments;
+    protected $enable_capture;
+    protected $enable_pix;
+    protected $pix_time_life;
+    protected $enable_boleto;
+    protected $descriptor;
+    protected $installment_percentage;
+
+
     /**
      * Class constructor, more about it in Step 3
      */
@@ -48,25 +60,30 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
         $this->private_key = $this->get_option('private_key');
         $this->enable_credit_card = 'yes' === $this->get_option('enable_credit_card');
         $this->enable_installments = 'yes' === $this->get_option('enable_installments');
-        $this->max_installments = $this->get_option('max_installments');
         $this->enable_capture = $this->get_option('enable_capture');
         $this->enable_pix = 'yes' === $this->get_option('enable_pix');
         $this->pix_time_life = $this->get_option('pix_time_life');
         $this->enable_boleto = 'yes' === $this->get_option('enable_boleto');
         $this->descriptor = $this->get_option('descriptor');
+        $this->installment_percentage = $this->get_option('installment_percentage');
 
-        $gateway = new Gateway([
+        $options = [
             'enabled' => $this->enabled,
             'testmode' => $this->testmode,
             'private_key' => $this->private_key,
             'enable_credit_card' => $this->enable_credit_card,
             'enable_installments' => $this->enable_installments,
-            'max_installments' => $this->max_installments,
+            'installment_percentage' => $this->installment_percentage,
             'enable_capture' => $this->enable_capture,
             'enable_pix' => $this->enable_pix,
             'enable_boleto' => $this->enable_boleto,
             'descriptor' => $this->descriptor,
-        ]);
+        ];
+
+        // var_dump(json_encode($options));
+        // die();
+
+        $gateway = new Gateway($options);
 
         $this->gateway = $gateway;
 
@@ -81,8 +98,6 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
     public function process_admin_options()
     {
         parent::process_admin_options();
-        var_dump($_POST);
-        die();
         $this->save_installment_settings();
     }
 

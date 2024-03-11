@@ -49,6 +49,15 @@ class CreditCard extends AbstractPayment implements PaymentInterface
         $data['async'] = false;
         $data['capture'] = $this->settings['enable_capture'] == 'automatic';
 
+        if (isset($this->settings['installment_percentage']) && isset($this->settings['installment_percentage'][$data['installments']])) {
+            $tax = $this->settings['installment_percentage'][$data['installments']];
+            if (!empty($tax) && $tax > 0) {
+                $amount = $data['amount']; 
+                $taxAmount = ($amount * ($tax/100));
+                $data['amount'] = ($amount + $taxAmount);
+            }
+        }
+
         $transaction = new Transactions($this->settings);
         $response = $transaction->create($data);
 
