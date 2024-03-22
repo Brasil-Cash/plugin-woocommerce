@@ -53,8 +53,8 @@ class CreditCard extends AbstractPayment implements PaymentInterface
             $tax = $this->settings['installment_percentage'][$data['installments']];
             if (!empty($tax) && $tax > 0) {
                 $amount = $data['amount']; 
-                $taxAmount = ($amount * ($tax/100));
-                $data['amount'] = ($amount + $taxAmount);
+                $taxAmount = (int) round(($amount * ($tax/100)), 0, PHP_ROUND_HALF_UP);
+                $data['amount'] = (int) ($amount + $taxAmount);
             }
         }
 
