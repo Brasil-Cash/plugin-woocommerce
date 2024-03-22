@@ -21,6 +21,7 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
     protected Gateway $gateway;
 
     protected $testmode;
+    protected $display_erros;
     protected $private_key;
     protected $enable_credit_card;
     protected $enable_installments;
@@ -57,6 +58,7 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
         $this->description = $this->get_option('description');
         $this->enabled = $this->get_option('enabled');
         $this->testmode = 'yes' === $this->get_option('testmode');
+        $this->display_erros = 'yes' === $this->get_option('display_erros');
         $this->private_key = $this->get_option('private_key');
         $this->enable_credit_card = 'yes' === $this->get_option('enable_credit_card');
         $this->enable_installments = 'yes' === $this->get_option('enable_installments');
@@ -70,6 +72,7 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
         $options = [
             'enabled' => $this->enabled,
             'testmode' => $this->testmode,
+            'display_erros' => $this->display_erros,
             'private_key' => $this->private_key,
             'enable_credit_card' => $this->enable_credit_card,
             'enable_installments' => $this->enable_installments,
@@ -224,7 +227,7 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
     public function process_payment($orderId)
     {
         $requestService = new RequestService($_POST);
-        $orderService = new OrderService(wc_get_order($orderId), $requestService);
+        $orderService = new OrderService(wc_get_order($orderId), $requestService); 
         $paymentService = new PaymentService($orderService, $requestService, $this->gateway);
         $result = $paymentService->process();
 

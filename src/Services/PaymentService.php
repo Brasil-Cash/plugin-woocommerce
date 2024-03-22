@@ -34,27 +34,37 @@ class PaymentService {
             return;
         }
 
+        $settings = $this->gateway->getSettings();
+
         $payment = new Payment($request->bc_payment_method, $gateway);
         $order->setPaymentMethod($request->bc_payment_method);
         $response = $payment->getPaymentData($order, $request);
 
-        Analog::log(json_encode(['response' => $response]));
+        $endOfMessage = '';
+
+        if ($settings['display_erros']) { 
+            $endOfMessage = json_encode([
+                'response' => $response
+            ]);
+        }
+
+        error_log(json_encode(['endOfMessage' => $endOfMessage, 'response' => $response]));
 
         switch ($response->type) {
             case ResponseTypeEnum::SUCCESS:
-                return $this->resolveStatus($response);
+                return $this->resolveStatus($response, $endOfMessage);
                 break;
             case ResponseTypeEnum::ERROR:
                 return [
                     'response' => ResponseTypeEnum::ERROR,
-                    'message' => __('Falha ao processar pagamento, revise os dados e tente novamente.', 'woo-bcpag-gateway'),
+                    'message' => __('Falha ao processar pagamento, revise os dados e tente novamente. ' . $endOfMessage, 'woo-bcpag-gateway'),
                 ];
                 break;
         
             default:
                 return [
                     'response' => ResponseTypeEnum::FAIL,
-                    'message' => __('Falha ao processar pagamento, entre em contato com a loja virtual.', 'woo-bcpag-gateway'),
+                    'message' => __('Error ao processar pagamento, entre em contato com a loja virtual. ' . $endOfMessage, 'woo-bcpag-gateway'),
                 ];
                 break;
         }
@@ -115,7 +125,7 @@ class PaymentService {
         return $this->order;
     }
 
-    protected function resolveStatus($response) {
+    protected function resolveStatus($response, $endOfMessage = '') {
 
         $body = $response->body;
 
@@ -140,14 +150,14 @@ class PaymentService {
                 $this->order->completeOrder($body['id']);
                 return [
                     'response' => ResponseTypeEnum::SUCCESS,
-                    'message' => __('Pago com sucesso.', 'woo-bcpag-gateway'),
+                    'message' => __('Pago com sucesso. ' . $endOfMessage, 'woo-bcpag-gateway'),
                 ];
                 break;
             case TransactionStatusEnum::REFUSED:
                 $this->order->updateStatus('failed', 'Transação Recusada: ' . $body['refused_reason']->reason);
                 return [
                     'response' => ResponseTypeEnum::ERROR,
-                    'message' => $body['refused_reason']->reason,
+                    'message' => $body['refused_reason']->reason . ' ' . $endOfMessage,
                 ];
                 break;
             case TransactionStatusEnum::PENDING_REFUND:

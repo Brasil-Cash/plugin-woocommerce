@@ -46,7 +46,7 @@ class CheckoutForm
                 <h5>Formas de pagamento</h5>
                 <div class="form-row p-0">';
                 
-                if ($this->options->enable_credit_card) {
+                if ($this->options->enable_credit_card == 'yes') {
                     $html .= '<div class="col-12">
                     <div class="form-check pl-2">
                         <input class="form-check-input mt-1" onchange="bcpagChangeViewArea()" type="radio" id="bcpag_payment_method_credit_card" name="bc_payment_method" value="credit_card" checked>
@@ -58,7 +58,7 @@ class CheckoutForm
                     
                 }
 
-                if ($this->options->enable_pix) {
+                if ($this->options->enable_pix == 'yes') {
                     $html .= '<div class="col-12">
                         <div class="form-check pl-2">
                             <input class="form-check-input mt-1" onchange="bcpagChangeViewArea()" type="radio" id="bcpag_payment_method_pix" name="bc_payment_method" value="pix">
@@ -70,7 +70,7 @@ class CheckoutForm
                     
                 }
 
-                if ($this->options->enable_boleto) {
+                if ($this->options->enable_boleto == 'yes') {
                     $html .= '<div class="col-12">
                         <div class="form-check pl-2">
                             <input class="form-check-input mt-1" onchange="bcpagChangeViewArea()" type="radio" id="bcpag_payment_method_boleto" name="bc_payment_method" value="boleto">

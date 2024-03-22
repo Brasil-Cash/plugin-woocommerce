@@ -44,6 +44,14 @@ class  BcpagAdmin {
                 'title'       => 'Token',
                 'type'        => 'password'
             ],
+            'display_erros' => [
+                'title'       => 'Mostrar errors',
+                'label'       => 'Exibir erros na mensagem',
+                'type'        => 'checkbox',
+                'description' => 'Utilize esse recurso para fins de debug na sua loja.',
+                'default'     => 'no',
+                'desc_tip'    => true,
+            ],
             'pix_settings_title' => [
                 'type' => 'title',
                 'title' => 'Método de pagamento PIX',
