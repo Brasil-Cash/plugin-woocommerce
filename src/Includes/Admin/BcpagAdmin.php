@@ -98,6 +98,34 @@ class  BcpagAdmin {
                 'description' => 'Selecione como as transações de cartão de crédito devem ser capturadas.',
                 'desc_tip' => true,
             ],
+            'threeDSecure_title' => [
+                'type' => 'title',
+                'title' => '3DS 2.0 (ThreeDSecure) Cartão de crédito',
+            ],
+            'enable_threeDSecure' => [
+                'title'       => 'Ativar/Destivar',
+                'label'       => 'Usar 3DS 2.0 (ThreeDSecure)',
+                'type'        => 'checkbox',
+                'description' => '',
+                'default'     => 'no'
+            ],
+            'threeDSecure_onFailure' => [
+                'title'       => 'Captura de Pagamento',
+                'label'       => 'Define como prosseguir com a transação caso a autenticação 3DS não obtenha sucesso.',
+                'id'       => 'payment_capture',
+                'type'        => 'select',
+                'default'  => 'automatic',
+                'options'  => [
+                    'continue' => 'Aceitar - prossegue com a transação financeira mesmo se a autenticação falhar',
+                    'decline'    => 'Recusar - não prossegue com a transação financeira caso a autenticação falhar',
+                ],
+                'description' => 'Define como prosseguir com a transação caso a autenticação 3DS não obtenha sucesso.',
+                'desc_tip' => true,
+            ],
+            'installments_title' => [
+                'type' => 'title',
+                'title' => 'Parcelamento Cartão de crédito',
+            ],
             'enable_installments' => [
                 'title'       => 'Parcelamento',
                 'label'       => 'Habilitar parcelamento',

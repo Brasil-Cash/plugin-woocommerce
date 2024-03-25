@@ -1,5 +1,6 @@
 <?php
 
+use Bcpag\Gateway\Enum\TransactionStatusEnum;
 use Bcpag\Includes\Admin\BcpagAdmin;
 use Bcpag\Includes\Front\CheckoutForm;
 use Bcpag\Services\OrderService;
@@ -31,11 +32,10 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
     protected $enable_boleto;
     protected $descriptor;
     protected $installment_percentage;
+    protected $useThreeDSecure = false;
+    protected $useThreeDSecure_onFailure = 'decline';
 
 
-    /**
-     * Class constructor, more about it in Step 3
-     */
     public function __construct()
     {
 
@@ -49,10 +49,8 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
             'products'
         );
 
-        // Method with all the options fields
         $this->init_form_fields();
 
-        // Load the settings.
         $this->init_settings();
         $this->title = $this->get_option('title');
         $this->description = $this->get_option('description');
@@ -68,6 +66,8 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
         $this->enable_boleto = 'yes' === $this->get_option('enable_boleto');
         $this->descriptor = $this->get_option('descriptor');
         $this->installment_percentage = $this->get_option('installment_percentage');
+        $this->useThreeDSecure = 'yes' === $this->get_option('enable_threeDSecure');
+        $this->useThreeDSecure_onFailure = $this->get_option('threeDSecure_onFailure');
 
         $options = [
             'enabled' => $this->enabled,
@@ -77,14 +77,13 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
             'enable_credit_card' => $this->enable_credit_card,
             'enable_installments' => $this->enable_installments,
             'installment_percentage' => $this->installment_percentage,
+            'useThreeDSecure' => $this->useThreeDSecure,
+            'useThreeDSecure_onFailure' => $this->useThreeDSecure_onFailure,
             'enable_capture' => $this->enable_capture,
             'enable_pix' => $this->enable_pix,
             'enable_boleto' => $this->enable_boleto,
             'descriptor' => $this->descriptor,
         ];
-
-        // var_dump(json_encode($options));
-        // die();
 
         $gateway = new Gateway($options);
 
@@ -93,8 +92,6 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
         add_action('wp_enqueue_scripts', array($this, 'payment_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_script'));
-        // You can also register a webhook here
-        // add_action( 'woocommerce_api_{webhook name}', array( $this, 'webhook' ) );
 
     }
 
@@ -107,8 +104,6 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
     protected function save_installment_settings()
     {
         $installment_percentages = isset($_POST['installment_percentage']) ? $_POST['installment_percentage'] : array();
-
-        // Salva as taxas percentuais das parcelas
         $this->update_option('installment_percentage', $installment_percentages);
     }
 
@@ -116,18 +111,11 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
         return $this->gateway;
     }
 
-    /**
-     * Plugin options, we deal with it in Step 3 too
-     */
     public function init_form_fields()
     {
         $this->form_fields = BcpagAdmin::setting();
-
     }
 
-    /**
-     * You will need it if you want your custom credit card form, Step 4 is about it
-     */
     public function payment_fields()
     {
 
@@ -212,7 +200,8 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
         return true;
     }
     
-    public function createWebhook(){
+    public function createWebhook()
+    {
         $api_version = 'v1';
         $route_name = 'webhook';
         $webhook_url = rest_url("bcpag-gateway/{$api_version}/{$route_name}");
@@ -232,7 +221,24 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
         $result = $paymentService->process();
 
         if ($result['response'] == ResponseTypeEnum::SUCCESS) {
-             return array(
+            $responseBody = $result['data'];
+
+            error_log(json_encode([
+                'responseBody' => $responseBody,
+                'useThreeDSecure' => $this->useThreeDSecure,
+            ]));
+
+            if (
+                $this->useThreeDSecure &&
+                $responseBody['status'] == TransactionStatusEnum::REQUEST_AUTHENTICATION
+            ) {
+                return [
+                    'result' => 'success',
+                    'redirect' => $responseBody['threeDSecure']->url,
+                ];
+            }
+
+            return array(
                 'result' => 'success',
                 'redirect' => $this->get_return_url($orderService->getWCOrder()),
             );

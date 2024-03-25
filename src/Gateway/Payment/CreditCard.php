@@ -58,6 +58,27 @@ class CreditCard extends AbstractPayment implements PaymentInterface
             }
         }
 
+        if ($this->settings['useThreeDSecure']) {
+            $base_url = home_url('/bcpag/threeDSecure/');
+
+            $data['threeDSecure'] = [
+                'urlSuccess' => $base_url . $orderService->getWCOrder()->get_id() . '/success/',
+                'urlFail' => $base_url . $orderService->getWCOrder()->get_id() . '/fail/',
+                'onFailure' => $this->settings['useThreeDSecure_onFailure'] ?? 'decline',
+                'userAgent' => $requestService->getUserAgent(),
+                'ipAddress' => $requestService->getIpAddress(),
+                'device' => [
+                    'colorDepth' => 1,
+                    'deviceType3ds' => 'BROWSER',
+                    'javaEnabled' => true,
+                    'language' => substr(get_locale(), -2),
+                    'screenHeight' => 1280,
+                    'screenWidth' => 720,
+                    'timeZoneOffset' => 3,
+                ]
+            ];
+        }
+
         $transaction = new Transactions($this->settings);
         $response = $transaction->create($data);
 

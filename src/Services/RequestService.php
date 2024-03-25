@@ -45,4 +45,13 @@ class RequestService {
     public function all(){
         return $this->data;
     }
+
+    public function getUserAgent() {
+        return $_SERVER['HTTP_USER_AGENT'] ?? null;
+    }
+
+    public function getIpAddress() {
+        return $_SERVER['REMOTE_ADDR'] ?? null;
+    }
+
 }

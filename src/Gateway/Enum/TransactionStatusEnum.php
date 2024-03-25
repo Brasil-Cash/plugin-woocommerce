@@ -7,6 +7,7 @@ class TransactionStatusEnum {
     const CANCELED = 'canceled';
     const AUTHORIZED = 'authorized';
     const WAITING_PAYMENT = 'waiting_payment';
+    const REQUEST_AUTHENTICATION = 'request_authentication';
     const PAID = 'paid';
     const REFUSED = 'refused';
     const PENDING_REFUND = 'pending_refund';

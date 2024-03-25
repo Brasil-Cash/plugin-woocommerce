@@ -114,7 +114,7 @@ class CheckoutForm
             </div>
                 <div class="form-row form-row-last py-0">
                     <label>Código do Cartão (CVV) <span class="required">*</span></label>
-                    <input id="bcpag_cvv" name="bc_card_cvv" type="password" autocomplete="off" placeholder="CVC">
+                    <input id="bcpag_cvv" name="bc_card_cvv" type="text" autocomplete="off" placeholder="CVC">
                 </div>
                 </div>';
         $html .= $this->buildInstallmentsSelect();

@@ -53,24 +53,18 @@ class PaymentService {
         switch ($response->type) {
             case ResponseTypeEnum::SUCCESS:
                 return $this->resolveStatus($response, $endOfMessage);
-                break;
             case ResponseTypeEnum::ERROR:
-                return [
-                    'response' => ResponseTypeEnum::ERROR,
-                    'message' => __('Falha ao processar pagamento, revise os dados e tente novamente. ' . $endOfMessage, 'woo-bcpag-gateway'),
-                ];
-                break;
-        
+                return $this->resolveError($response, $endOfMessage);
             default:
                 return [
                     'response' => ResponseTypeEnum::FAIL,
                     'message' => __('Error ao processar pagamento, entre em contato com a loja virtual. ' . $endOfMessage, 'woo-bcpag-gateway'),
                 ];
-                break;
         }
     }
 
-    public function refundTransaction() {
+    public function refundTransaction() 
+    {
         if ($this->request->has('transaction_id')) {
             $payment = new Payment($this->order->getPaymentMethod(), $this->gateway);
             $response = $payment->refund($this->request->transaction_id, $this->order->getTotal());
@@ -78,26 +72,24 @@ class PaymentService {
             switch ($response->type) {
                 case ResponseTypeEnum::SUCCESS:
                     return $this->resolveStatus($response);
-                    break;
                 case ResponseTypeEnum::ERROR:
                     return [
                         'response' => ResponseTypeEnum::ERROR,
                         'message' => __('Falha ao estornar, revise os dados e tente novamente.', 'woo-bcpag-gateway'),
                     ];
-                    break;
             
                 default:
                     return [
                         'response' => ResponseTypeEnum::FAIL,
                         'message' => __('Falha ao estornar, entre em contato com a loja virtual.', 'woo-bcpag-gateway'),
                     ];
-                    break;
             }
     
         }
     }
 
-    public function checkStatus($transaction_id, $localStatus){
+    public function checkStatus($transaction_id, $localStatus)
+    {
         $payment = new Payment($this->order->getPaymentMethod(), $this->gateway);
         $response = $payment->checkTransaction($transaction_id);
         $attempt = $this->order->getAttempChecks() ?? 1 ;
@@ -125,7 +117,29 @@ class PaymentService {
         return $this->order;
     }
 
-    protected function resolveStatus($response, $endOfMessage = '') {
+    protected function resolveError($response, $endOfMessage = '')
+    {
+        $body = $response->body;
+        $message = __('Falha ao processar pagamento, entre em contato com a loja virtual.', 'woo-bcpag-gateway');
+
+        if (isset($body['errors'])) {
+            $message = '';
+
+            foreach ($body['errors'] as $error) {
+                $message .= __($error, 'woo-bcpag-gateway') . '<br>';
+            }
+        }
+
+        return [
+            'response' => ResponseTypeEnum::ERROR,
+            'message' => $message,
+            'data' => $body
+        ];
+
+    }
+
+    protected function resolveStatus($response, $endOfMessage = '')
+    {
 
         $body = $response->body;
 
@@ -133,6 +147,7 @@ class PaymentService {
             case TransactionStatusEnum::PAID:
             case TransactionStatusEnum::AUTHORIZED:
             case TransactionStatusEnum::WAITING_PAYMENT:
+            case TransactionStatusEnum::REQUEST_AUTHENTICATION:
 
                 if ($this->order->getPaymentMethod() == self::PIX) {
                     $this->order->setAdditionalData(json_encode([
@@ -140,26 +155,30 @@ class PaymentService {
                         'pix_expiration_date' => $body['pix_expiration_date'],
                         'pix_additional_fields' => $body['pix_additional_fields'],
                     ]));
-                }else if ($this->order->getPaymentMethod() == self::BOLETO) {
+                } else if ($this->order->getPaymentMethod() == self::BOLETO) {
                     $this->order->setAdditionalData(json_encode([
                         'boleto' => $body['boleto']
                     ]));
                 }
 
                 $this->order->addTransaction($body['id'], $body['status']);
-                $this->order->completeOrder($body['id']);
+
+                if ($body['status'] != TransactionStatusEnum::REQUEST_AUTHENTICATION) {
+                    $this->order->completeOrder($body['id']);
+                }
+
                 return [
                     'response' => ResponseTypeEnum::SUCCESS,
                     'message' => __('Pago com sucesso. ' . $endOfMessage, 'woo-bcpag-gateway'),
+                    'data' => $body
                 ];
-                break;
             case TransactionStatusEnum::REFUSED:
                 $this->order->updateStatus('failed', 'Transação Recusada: ' . $body['refused_reason']->reason);
                 return [
                     'response' => ResponseTypeEnum::ERROR,
                     'message' => $body['refused_reason']->reason . ' ' . $endOfMessage,
+                    'data' => $body
                 ];
-                break;
             case TransactionStatusEnum::PENDING_REFUND:
             case TransactionStatusEnum::REFUNDED:
                 $this->order->updatStatusTransaction($body['id'], $body['status'] ?? TransactionStatusEnum::REFUNDED);
@@ -167,15 +186,15 @@ class PaymentService {
                 return [
                     'response' => ResponseTypeEnum::SUCCESS,
                     'message' => "Transação reembolsada",
+                    'data' => $body
                 ];
-                break;
             case TransactionStatusEnum::CANCELED:
                 $this->order->updateStatus('cancelled', __('Transação Cancelada: ' . $body['id'], 'woo-bcpag-gateway'));
                 return [
                     'response' => ResponseTypeEnum::SUCCESS,
                     'message' => "Transação reembolsada",
+                    'data' => $body
                 ];
-                break;
         }
 
     }

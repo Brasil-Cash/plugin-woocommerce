@@ -5,7 +5,7 @@
  * Description: Receba pagamentos online de forma segura no seu ecommerce com a Brasil Cash.
  * Author: Brasil Cash
  * Author URI: https://brasilcash.com.br
- * Version: 1.1.2
+ * Version: 1.2.0
  */
 
 use Analog\Analog;
@@ -186,4 +186,37 @@ add_action('woocommerce_update_options', 'registerWebhook');
 function registerWebhook() {
     $plugin = new WC_Bcpag_Gateway();
     $plugin->createWebhook();
+}
+
+add_action('init', 'threeDSecureRedirectTemplate');
+function threeDSecureRedirectTemplate() {
+    $current_url = isset($_SERVER['REQUEST_URI']) ? esc_url($_SERVER['REQUEST_URI']) : home_url('/');
+    if (strpos($current_url, '/bcpag/') !== false) { 
+
+        $matches = [];
+        preg_match('/\/bcpag\/threeDSecure\/(\d+)\/(\w+)\/?$/', $current_url, $matches);
+        $order_id = isset($matches[1]) ? $matches[1] : 0;
+        $action = isset($matches[2]) ? $matches[2] : '';
+        
+        if (isset($order_id) && in_array($action, ['fail', 'success'])) {
+            $order = wc_get_order($order_id);
+            
+            error_log(json_encode([
+                'threeDSecureWebhook' => $action,
+                'order' => $order_id,
+            ]));
+            
+            if ($order->get_status() === 'pending') {
+                if ($action === 'success') {
+                    $order->update_status('processing');
+                } elseif ($action === 'fail') {
+                    $order->update_status('failed');
+                }
+            } 
+
+            $thankyou_url = $order->get_checkout_order_received_url();
+            wp_redirect($thankyou_url);
+            exit;
+        }
+    }
 }
