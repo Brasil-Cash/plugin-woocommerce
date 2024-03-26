@@ -25,13 +25,10 @@ Class Customer {
     
         $documentLength = strlen($cleanDocument);
     
-        if ($documentLength == 11) { // CPF
-            $this->type = 'individual';
-        } elseif ($documentLength == 14) { // CNPJ
+        if ($documentLength == 14) {
             $this->type = 'corporation';
         } else {
-            // Tamanho não corresponde a um CPF ou CNPJ
-            // Você pode lidar com outros casos aqui, se necessário.
+            $this->type = 'individual';
         }
 
     }

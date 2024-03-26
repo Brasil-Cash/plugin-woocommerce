@@ -40,6 +40,7 @@ abstract class AbstractPayment
 
     public function getDataBase(OrderService $orderService, RequestService $requestService): array {
         $data = [
+            'payment_direct' => true,
             'amount' => $orderService->getTotal(),
             'payment_method' => $requestService->bc_payment_method,
             'async' => true,

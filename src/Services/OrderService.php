@@ -23,7 +23,6 @@ class OrderService
     protected $order;
     protected $request;
 
-    // For mount json to Request rsrs
     public $customer = null;
     public array $items;
 
@@ -61,7 +60,8 @@ class OrderService
         return $items;
     }
 
-    public function getTotal() : int {
+    public function getTotal() : int 
+    {
         $price_string = $this->order->get_total();
         $price_decimal = floatval($price_string);
         return $price_decimal * 100;
@@ -72,11 +72,13 @@ class OrderService
         return $this->order;
     }
 
-    public function getCustomer() {
+    public function getCustomer() 
+    {
         return $this->customer;
     }
 
-    public function addTransaction($id, $status = 'processing') {
+    public function addTransaction($id, $status = 'processing') 
+    {
         $table_name = $this->database->prefix . 'brasilcash_order_transactions';
     
         $existing_transaction = $this->getTransactionById($id);
@@ -103,7 +105,8 @@ class OrderService
     }
     
 
-    public function updatStatusTransaction($id, $newStatus) {
+    public function updatStatusTransaction($id, $newStatus) 
+    {
         $table_name = $this->database->prefix . 'brasilcash_order_transactions';
 
         $existing_transaction = $this->database->get_row(
@@ -119,48 +122,58 @@ class OrderService
         }
     }
 
-    public function getTransactionById($id) {
+    public function getTransactionById($id) 
+    {
         return TransactionService::getTransactionById($id);
     }
 
-    public function updateStatus($status, $note = '') {
+    public function updateStatus($status, $note = '') 
+    {
         $this->order->update_status($status, $note);
         $this->order->save();
     }
 
-    public function completeOrder($transaction_id) {
+    public function completeOrder($transaction_id) 
+    {
         $this->order->payment_complete($transaction_id);
         WC()->cart->empty_cart();
     }
 
-    public function setPaymentMethod($paymentMethod) {
+    public function setPaymentMethod($paymentMethod) 
+    {
         $this->order->update_meta_data('_bc_payment_method', $paymentMethod);
         $this->order->save();
     }
 
-    public function setAdditionalData($data) {
+    public function setAdditionalData($data) 
+    {
         $this->order->update_meta_data('_bc_additional_data', $data);
         $this->order->save();
     }
 
-    public function setAttempChecks($data) {
+    public function setAttempChecks($data) 
+    {
         $this->order->update_meta_data('_bc_attempt_verify', $data);
         $this->order->save();
     }
 
-    public function getAttempChecks() {
+    public function getAttempChecks() 
+    {
         return $this->order->get_meta('_bc_attempt_verify', true);
     }
 
-    public function getAdditionalData() {
+    public function getAdditionalData() 
+    {
         return $this->order->get_meta('_bc_additional_data', true);
     }
 
-    public function getPaymentMethod() {
+    public function getPaymentMethod() 
+    {
         return $this->order->get_meta('_bc_payment_method', true);
     }
 
-    public function getBillingAddress() {
+    public function getBillingAddress() 
+    {
         if ($this->order) {
             $billing_address = $this->order->get_address('billing');
 
@@ -184,7 +197,8 @@ class OrderService
         return null;
     }
 
-    public function getShippingAddress() {
+    public function getShippingAddress() 
+    {
         if ($this->order) {
             $shipping_address = $this->order->get_address('shipping');
     
@@ -209,7 +223,8 @@ class OrderService
         return null;
     }
 
-    public function verifyStatus(){
+    public function verifyStatus()
+    {
         if (in_array($this->getPaymentMethod(), [PaymentService::PIX, PaymentService::BOLETO])){
             $localTransaction = $this->getTransactionById($this->order->get_transaction_id());
             if ($localTransaction) {
@@ -221,7 +236,8 @@ class OrderService
         }
     }
 
-    private function getStreetNumber($billing_address) {
+    private function getStreetNumber($billing_address) 
+    {
         $address_1 = $billing_address['address_1'];
         $address_2 = $billing_address['address_2'];
     
@@ -236,12 +252,13 @@ class OrderService
         }
     }
 
-    private function fillCustomer(RequestService $request = null) {
+    private function fillCustomer(RequestService $request = null) 
+    {
 
         $customer_id = $this->order->get_customer_id();
         $customerData = new WC_Customer($customer_id);
 
-        if ($request && $request->has("bc_customer_document_number")) {
+        if (!empty($customerData->get_email()) && $request && $request->has("bc_customer_document_number")) {
             $customer = new Customer();
             $customer->name = $customerData->get_first_name() . ' ' . $customerData->get_last_name();
             $customer->email = $customerData->get_email();
