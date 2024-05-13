@@ -5,7 +5,7 @@
  * Description: Receba pagamentos online de forma segura no seu ecommerce com a Brasil Cash.
  * Author: Brasil Cash
  * Author URI: https://brasilcash.com.br
- * Version: 1.2.1
+ * Version: 1.3.0
  */
 
 use Analog\Analog;
@@ -86,7 +86,7 @@ function process_estorno_transaction() {
             $requestService = new RequestService($_GET);
             $orderService = new OrderService(wc_get_order($order_id), $requestService);
             $paymentService = new PaymentService($orderService, $requestService, $plugin->getGateway());
-            $response = $paymentService->refundTransaction($transaction_id);
+            $response = $paymentService->refundTransaction();
 
             wp_redirect(admin_url("post.php?post=$order_id&action=edit&refund_message=".$response['response']));
             exit();
@@ -206,17 +206,33 @@ function threeDSecureRedirectTemplate() {
                 'order' => $order_id,
             ]));
             
-            if ($order->get_status() === 'pending') {
-                if ($action === 'success') {
-                    $order->update_status('processing');
-                } elseif ($action === 'fail') {
-                    $order->update_status('failed');
-                }
+            $thankyou_url = $order->get_checkout_order_received_url();
+
+            if ($action === 'success') {
+                $message = urlencode("Obrigado por sua compra! Seu pedido foi aprovado com sucesso.");
+            } elseif ($action === 'fail') {
+                $message = urlencode("Lamentamos, mas a verificação 3DSecure falhou. Seu pedido não pôde ser processado.");
             } 
 
-            $thankyou_url = $order->get_checkout_order_received_url();
+            $thankyou_url = add_query_arg('custom_thankyou_message', $message, $thankyou_url);
             wp_redirect($thankyou_url);
             exit;
         }
     }
+}
+
+add_filter('woocommerce_thankyou_order_received_text', 'custom_thankyou_message', 10, 2);
+function custom_thankyou_message($message, $order) {
+    if (! $order || ! is_a($order, 'WC_Order')) {
+        return $message;
+    }
+
+    if (isset($_GET['custom_thankyou_message'])) { 
+        $custom_message = sanitize_text_field($_GET['custom_thankyou_message']);
+        $message = $custom_message; 
+    }else { 
+        $message = __( 'Thank you. Your order has been received.', 'woocommerce' );
+    }
+
+    return $message;
 }

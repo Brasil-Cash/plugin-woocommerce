@@ -142,6 +142,7 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
         }
 
         wp_enqueue_script('woocommerce_bcpag', plugin_dir_url(__FILE__) . '../assets/js/checkout.js', array('jquery'), microtime(true), true);
+        wp_enqueue_style('woocommerce_bcpag_style', plugin_dir_url(__FILE__) . '../assets/css/checkout.css', array('woocommerce-general'), microtime(true), 'all');
     }
 
     public function enqueue_admin_script() { 
@@ -207,10 +208,26 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
         $webhook_url = rest_url("bcpag-gateway/{$api_version}/{$route_name}");
 
         $webhooks = new Webhooks($this->gateway->getSettings());
-        $webhooks->create([
-            'url' => $webhook_url,
-            'events' => ['transactions', 'cards', 'links', 'customers']
-        ]);
+
+        $webhook_id = get_option('woocommerce_bcpag_webhook_id');
+
+        if (!$webhook_id) {
+            $responseWebhook = $webhooks->create([
+                'url' => $webhook_url,
+                'events' => ['transactions', 'cards', 'links', 'customers']
+            ]);
+
+            error_log(json_encode(['responseWebhook' => $responseWebhook]));
+            
+            if (isset($responseWebhook->type) && $responseWebhook->type == 'success') { 
+                update_option('woocommerce_bcpag_webhook_id', $responseWebhook->body['id']);
+            } else { 
+                error_log(json_encode(['error' => 'BCPAG: Erro ao criar o webhook', 'responseWebhook' => $responseWebhook]));
+                return;
+            }
+        }
+
+        error_log(json_encode(['webhook_id' => $webhook_id]));
     }
 
     public function process_payment($orderId)
@@ -249,13 +266,6 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
             wc_add_notice('Please try again.', 'error');
             return;
         }
-
-    }
-
-    public function webhook()
-    {
-
-        //...
 
     }
 }

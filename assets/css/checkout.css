@@ -1,0 +1,29 @@
+.bc-select-month-field-payment {
+    width: 100% !important; 
+    border-color: #e1e1e1; 
+    padding: 15px 0;
+}
+
+.bc-select-year-field-payment {
+    width: 100%;
+    border-color: #e1e1e1;
+    padding: 15px 0;
+}
+
+.bc-select-installments-field {
+    width: 100%;
+    border-color: #e1e1e1;
+    padding: 15px 0;
+}
+
+.bc-label-payment-method-area-dynamic {
+    width: 80%;
+    display: flex;
+    justify-content: start;
+    gap: 10px;
+    cursor: pointer; 
+}
+
+.bc-card-brand-area-dynamic {
+    width: 64px
+}

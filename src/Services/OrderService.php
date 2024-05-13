@@ -19,22 +19,17 @@ class OrderService
 {
 
     protected $database;
-
     protected $order;
     protected $request;
-
     public $customer = null;
     public array $items;
-
 
     public function __construct($order, RequestService $request = null)
     {
         global $wpdb;
         $this->database = $wpdb;
         $this->order = $order;
-
         $this->request = $request;
-    
         $this->customer = $this->fillCustomer($request);
     }
 

@@ -16,31 +16,24 @@ class CheckoutForm
 
     public function build()
     {
-        // Inicializa a variável do HTML
         $html = '';
 
-        // Adicione a descrição, se existir
         if ($this->options->description) {
-            // Adicione instruções para o modo de teste, se aplicável
             if ($this->options->testmode) {
                 $this->options->description .= ' TEST MODE ENABLED. In test mode, you can use the card numbers listed in <a href="#">documentation</a>.';
                 $this->options->description  = trim($this->options->description);
             }
-            // Adicione a descrição com parágrafos
             $html .= wpautop(wp_kses_post($this->options->description));
         }
 
-        // Adicione o formulário HTML
         $html .= '
         <fieldset id="wc-' . esc_attr($this->options->id) . '-cc-form" class="wc-credit-card-form wc-payment-form" style="background:transparent;">
             ';
 
-        // Inicie o formulário com o gancho de ação
         ob_start();
         do_action('woocommerce_credit_card_form_start', $this->options->id);
         $html .= ob_get_clean();
 
-        // Adicione os campos do formulário
         $html .= '
             <div class="">
                 <h5>Formas de pagamento</h5>
@@ -114,7 +107,7 @@ class CheckoutForm
             </div>
                 <div class="form-row form-row-last py-0">
                     <label>Código do Cartão (CVV) <span class="required">*</span></label>
-                    <input id="bcpag_cvv" name="bc_card_cvv" type="text" autocomplete="off" placeholder="CVC">
+                    <input id="bcpag_cvv" class="bc-card-cvv-input-field" name="bc_card_cvv" type="text" autocomplete="off" placeholder="CVC">
                 </div>
                 </div>';
         $html .= $this->buildInstallmentsSelect();
@@ -137,7 +130,6 @@ class CheckoutForm
             <div class="clear"></div>
         ';
 
-        // Finalize o formulário com o gancho de ação
         ob_start();
         do_action('woocommerce_credit_card_form_end', $this->options->id);
         $html .= ob_get_clean();
@@ -151,7 +143,7 @@ class CheckoutForm
 
     private function buildMonthSelect()
     {
-        $html = '<select style="width: 100%; border-color: #e1e1e1; padding: 15px 0;" id="bcpag_expmonth" name="bc_card_expmonth">
+        $html = '<select class="bc-select-month-field-payment"  id="bcpag_expmonth" name="bc_card_expmonth">
                         <option value="">Mês</option>';
 
         $months = [
@@ -171,7 +163,7 @@ class CheckoutForm
 
     private function buildYearSelect()
     {
-        $html = '<select style="width: 100%; border-color: #e1e1e1; padding: 15px 0;" id="bcpag_expyear" name="bc_card_expyear">
+        $html = '<select class="bc-select-year-field-payment"  id="bcpag_expyear" name="bc_card_expyear">
                         <option value="">Ano</option>';
 
         $currentYear = date('Y');
@@ -193,9 +185,28 @@ class CheckoutForm
 
         if ($this->options->enable_installments) {  
             $totalCart = WC()->cart->get_total('total');
+            error_log(json_encode(['totalCart' => $totalCart]));
+            
+            if ($totalCart == 0 && isset($_GET['key'])) { 
+                $order_key = isset($_GET['key']) ? sanitize_text_field($_GET['key']) : '';
+                
+                if (!empty($order_key)) {
+                    $order_id = wc_get_order_id_by_order_key($order_key);
+                    
+                    if ($order_id) {
+                        $order = wc_get_order($order_id);
+                        
+                        if (is_a($order, 'WC_Order')) {
+                            $totalCart = $order->get_total();
+                        }
+                    }
+                }
+            }
+
+
             $html = '<div class="form-row form-row-wide py-0" id="bc-installments-area">
             <label>Parcelas <span class="required">*</span></label>
-            <select style="width: 100%; border-color: #e1e1e1; padding: 15px 0;" id="bcpag_installments" name="bc_card_installments">';
+            <select class="bc-select-installments-field" id="bcpag_installments" name="bc_card_installments">';
 
             foreach ($this->options->installment_percentage as $installment => $_tax) {
                 $selected = ($installment == 1) ? 'selected' : '';
@@ -248,14 +259,9 @@ class CheckoutForm
                             $image_url = BCPAG_ROOT . 'assets/images/' . esc_attr($card_brand) . '.png';
 
                             $html .= '<input class="form-check-input mt-3" type="radio" id="bcpag_card_' . esc_attr($card['card_id']) . '" name="bc_card_id" value="' . esc_attr($card['card_id']) . '" '.$check.'>';
-                            $html .= '<label class="form-check-label" for="bcpag_card_' . esc_attr($card['card_id']) . '" style="width: 80%;
-                            display: flex;
-                            justify-content: start;
-                            gap: 10px;
-                            cursor: pointer;
-                            " >';
+                            $html .= '<label class="form-check-label bc-label-payment-method-area-dynamic" for="bcpag_card_' . esc_attr($card['card_id']) . '"  >';
                                 $html .= '<div class="">';
-                                    $html .= '<img class="card-band brand-'. esc_attr($card_brand).'" src="'.$image_url.'" style="widht: 64px">';
+                                    $html .= '<img class="bc-card-brand-area-dynamic card-band brand-'. esc_attr($card_brand).'" src="'.$image_url.'"  >';
                                 $html .= '</div>';
                                 $html .= '<div class="">';
                                     $html .= esc_html(ucfirst($card_brand)) . '<br>Final: ' . esc_html($last_digits);

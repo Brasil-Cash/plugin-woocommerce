@@ -173,7 +173,6 @@ class PaymentService {
                     'data' => $body
                 ];
             case TransactionStatusEnum::REFUSED:
-                $this->order->updateStatus('failed', 'Transação Recusada: ' . $body['refused_reason']->reason);
                 return [
                     'response' => ResponseTypeEnum::ERROR,
                     'message' => $body['refused_reason']->reason . ' ' . $endOfMessage,
@@ -189,10 +188,10 @@ class PaymentService {
                     'data' => $body
                 ];
             case TransactionStatusEnum::CANCELED:
-                $this->order->updateStatus('cancelled', __('Transação Cancelada: ' . $body['id'], 'woo-bcpag-gateway'));
+                $this->order->updateStatus('canceled', __('Transação Cancelada: ' . $body['id'], 'woo-bcpag-gateway'));
                 return [
                     'response' => ResponseTypeEnum::SUCCESS,
-                    'message' => "Transação reembolsada",
+                    'message' => "Transação Cancelada",
                     'data' => $body
                 ];
         }

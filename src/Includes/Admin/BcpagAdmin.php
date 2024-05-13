@@ -4,6 +4,12 @@ namespace Bcpag\Includes\Admin;
 
 class  BcpagAdmin {
 
+    const STATUS_COMPLETE = 'complete';
+    const STATUS_PENDING = 'pending';
+    const STATUS_RUNNING = 'in-progress';
+    const STATUS_FAILED = 'failed';
+    const STATUS_CANCELED = 'canceled';
+
     public static function setting() {
         return [
             'enabled' => [
@@ -97,7 +103,7 @@ class  BcpagAdmin {
                 ],
                 'description' => 'Selecione como as transações de cartão de crédito devem ser capturadas.',
                 'desc_tip' => true,
-            ],
+            ], 
             'threeDSecure_title' => [
                 'type' => 'title',
                 'title' => '3DS 2.0 (ThreeDSecure) Cartão de crédito',
@@ -149,7 +155,24 @@ class  BcpagAdmin {
             ],  
             'installments_area' => [
                 'type' => 'hidden',
-            ] 
+            ],
+            //TODO: Implementar um roadmap para status da transação.
+            // 'action_status' => [
+            //     'title'       => 'Status após captura',
+            //     'label'       => 'Selecione qual será o status do pedido após a confirmação de pagamento.',
+            //     'id'       => 'status_action',
+            //     'type'        => 'select',
+            //     'default'  => self::STATUS_RUNNING,
+            //     'options'  => [
+            //         self::STATUS_COMPLETE => 'Concluído',
+            //         self::STATUS_PENDING => 'Pendente',
+            //         self::STATUS_RUNNING => 'Processando',
+            //         self::STATUS_FAILED => 'Falhou',
+            //         self::STATUS_CANCELED => 'Cancelado',
+            //     ],
+            //     'description' => 'Selecione qual será o status do pedido após a confirmação de pagamento.',
+            //     'desc_tip' => true,
+            // ],
         ];
     }
 
