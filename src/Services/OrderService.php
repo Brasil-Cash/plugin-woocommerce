@@ -252,12 +252,21 @@ class OrderService
 
         $customer_id = $this->order->get_customer_id();
         $customerData = new WC_Customer($customer_id);
-
+        $customer = null;
+        
         if (!empty($customerData->get_email()) && $request && $request->has("bc_customer_document_number")) {
             $customer = new Customer();
             $customer->name = $customerData->get_first_name() . ' ' . $customerData->get_last_name();
             $customer->email = $customerData->get_email();
             $customer->external_id = $customerData->get_id();
+        } else {
+            $customer = new Customer();
+            $customer->name = $request->billing_first_name . ' ' . $request->billing_last_name;
+            $customer->email = $request->billing_email;
+            $customer->external_id = '0';
+        }
+
+        if ($customer) {
             $customer->country = 'BR';
             $documentNumber = $request->bc_customer_document_number;
             $customer->setType($documentNumber);
@@ -265,11 +274,11 @@ class OrderService
             $document->type = $customer->type == 'individual' ? 'cpf' : 'cnpj';
             $document->number = $documentNumber;
             $customer->addDocument($document);
-        
-            return $customer;
         }
 
-        return null;
+        error_log(json_encode(['customer_id' => $customer_id, 'customerData' => $customerData, 'customer' => $customer, 'request' => $request->all()]));
+
+        return $customer;
     }
 
 }
