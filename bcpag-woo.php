@@ -5,7 +5,7 @@
  * Description: Receba pagamentos online de forma segura no seu ecommerce com a Brasil Cash.
  * Author: Brasil Cash
  * Author URI: https://brasilcash.com.br
- * Version: 1.3.1
+ * Version: 1.3.2
  */
 
 use Analog\Analog;

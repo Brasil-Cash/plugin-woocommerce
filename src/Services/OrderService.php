@@ -259,7 +259,7 @@ class OrderService
             $customer->name = $customerData->get_first_name() . ' ' . $customerData->get_last_name();
             $customer->email = $customerData->get_email();
             $customer->external_id = $customerData->get_id();
-        } else {
+        } else if ($request) {
             $customer = new Customer();
             $customer->name = $request->billing_first_name . ' ' . $request->billing_last_name;
             $customer->email = $request->billing_email;
@@ -276,7 +276,7 @@ class OrderService
             $customer->addDocument($document);
         }
 
-        error_log(json_encode(['customer_id' => $customer_id, 'customerData' => $customerData, 'customer' => $customer, 'request' => $request->all()]));
+        error_log(json_encode(['customer_id' => $customer_id, 'customerData' => $customerData, 'customer' => $customer, 'request' => $request ? $request->all() : null]));
 
         return $customer;
     }
