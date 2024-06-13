@@ -44,4 +44,27 @@ jQuery(document).ready(function($) {
             $('#bcpag_payment_method_area_boleto').show();
         }
     }
+
+    window.copyToClipboard = (pixCode) => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(pixCode).then(() => {
+                document.getElementById('message').innerText = "Código PIX copiado com sucesso!";
+            }).catch(err => {
+                document.getElementById('message').innerText = "Erro ao copiar o código PIX.";
+            });
+        } else {
+            // Fallback para navegadores que não suportam navigator.clipboard
+            var textarea = document.createElement('textarea');
+            textarea.value = pixCode;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                document.getElementById('message').innerText = "Código PIX copiado com sucesso!";
+            } catch (err) {
+                document.getElementById('message').innerText = "Erro ao copiar o código PIX.";
+            }
+            document.body.removeChild(textarea);
+        }
+    }
 });

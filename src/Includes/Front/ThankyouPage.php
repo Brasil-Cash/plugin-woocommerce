@@ -69,7 +69,8 @@ class ThankyouPage
                             transition: all .2s,box-shadow .08s ease-in;
                             user-select: none;
                             -webkit-user-select: none;
-                            touch-action: manipulation;" class="action primary bc-pix-text-copy-cta-button" onclick="copyToClipboard(#);">' . __('Copy') . '</button>
+                            touch-action: manipulation;" class="action primary bc-pix-text-copy-cta-button" onclick="copyToClipboard(\''.$pixQrCode.'\');">' . __('Copy') . '</button>
+                            <div id="message"></div>
                         </div>
                     </div>
                 </div>';
@@ -114,8 +115,10 @@ class ThankyouPage
                             transition: all .2s,box-shadow .08s ease-in;
                             user-select: none;
                             -webkit-user-select: none;
-                            touch-action: manipulation;" class="action primary bc-pix-text-copy-cta-button" onclick="copyToClipboard(#);">' . __('Copy') . '</button>
+                            touch-action: manipulation;" class="action primary bc-pix-text-copy-cta-button" onclick="copyToClipboard(\''.$boleto['barcode_line'].'\');">' . __('Copy') . '</button>
+                            <div id="message"></div>
                         </div>
+                        
                     </div>
                 </div>';
             }
