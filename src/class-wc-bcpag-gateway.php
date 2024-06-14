@@ -29,7 +29,9 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
     protected $enable_capture;
     protected $enable_pix;
     protected $pix_time_life;
+    protected $pix_tax;
     protected $enable_boleto;
+    protected $boleto_tax;
     protected $descriptor;
     protected $installment_percentage;
     protected $useThreeDSecure = false;
@@ -62,8 +64,10 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
         $this->enable_installments = 'yes' === $this->get_option('enable_installments');
         $this->enable_capture = $this->get_option('enable_capture');
         $this->enable_pix = 'yes' === $this->get_option('enable_pix');
+        $this->pix_tax = $this->get_option('pix_tax');
         $this->pix_time_life = $this->get_option('pix_time_life');
         $this->enable_boleto = 'yes' === $this->get_option('enable_boleto');
+        $this->boleto_tax = $this->get_option('boleto_tax');
         $this->descriptor = $this->get_option('descriptor');
         $this->installment_percentage = $this->get_option('installment_percentage');
         $this->useThreeDSecure = 'yes' === $this->get_option('enable_threeDSecure');
@@ -82,6 +86,8 @@ class WC_Bcpag_Gateway extends WC_Payment_Gateway
             'enable_capture' => $this->enable_capture,
             'enable_pix' => $this->enable_pix,
             'enable_boleto' => $this->enable_boleto,
+            'pix_tax' => $this->pix_tax,
+            'boleto_tax' => $this->boleto_tax,
             'descriptor' => $this->descriptor,
         ];
 

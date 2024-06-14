@@ -37,6 +37,15 @@ class Boleto extends AbstractPayment implements PaymentInterface
             'max_payment_date' => date('Y-m-d', strtotime('+4 days')),
         ];
 
+        if (isset($this->settings['boleto_tax'])) {
+            $tax = $this->settings['boleto_tax'];
+            if (!empty($tax) && $tax > 0) {
+                $amount = $data['amount']; 
+                $taxAmount = (int) round(($amount * ($tax/100)), 0, PHP_ROUND_HALF_UP);
+                $data['amount'] = (int) ($amount + $taxAmount);
+            }
+        }
+
         $transaction = new Transactions($this->settings);
         return $transaction->create($data);
     }

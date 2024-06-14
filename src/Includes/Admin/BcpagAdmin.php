@@ -69,6 +69,10 @@ class  BcpagAdmin {
                 'description' => '',
                 'default'     => 'yes'
             ],
+            'pix_tax' => [
+                'title'       => 'Juros PIX (%)',
+                'type'        => 'decimal'
+            ],
             'boleto_settings_title' => [
                 'type' => 'title',
                 'title' => 'Método de pagamento Boleto',
@@ -79,6 +83,10 @@ class  BcpagAdmin {
                 'type'        => 'checkbox',
                 'description' => '',
                 'default'     => 'yes'
+            ],
+            'boleto_tax' => [
+                'title'       => 'Juros BOLETO (%)',
+                'type'        => 'decimal'
             ],
             'credit_card_settings_title' => [
                 'type' => 'title',

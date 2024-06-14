@@ -16,6 +16,25 @@ class CheckoutForm
 
     public function build()
     {
+
+        $totalCart = WC()->cart->get_total('total');
+        
+        if ($totalCart == 0 && isset($_GET['key'])) { 
+            $order_key = isset($_GET['key']) ? sanitize_text_field($_GET['key']) : '';
+            
+            if (!empty($order_key)) {
+                $order_id = wc_get_order_id_by_order_key($order_key);
+                
+                if ($order_id) {
+                    $order = wc_get_order($order_id);
+                    
+                    if (is_a($order, 'WC_Order')) {
+                        $totalCart = $order->get_total();
+                    }
+                }
+            }
+        }
+
         $html = '';
 
         if ($this->options->description) {
@@ -52,11 +71,22 @@ class CheckoutForm
                 }
 
                 if ($this->options->enable_pix == 'yes') {
+                    $labelPix = 'PIX';
+                    
+                    if (isset($this->options->pix_tax) && $this->options->pix_tax > 0) {
+                        $tax = $this->options->pix_tax;
+                        $amount = $totalCart; 
+                        $taxAmount = $amount * ($tax/100);
+                        $newAmount = ($amount + $taxAmount);
+
+                        $labelPix .= ' - ' . get_woocommerce_currency_symbol() . ' ' .number_format($newAmount, 2, ',', '.');
+                    }
+
                     $html .= '<div class="col-12">
                         <div class="form-check pl-2">
                             <input class="form-check-input mt-1" onchange="bcpagChangeViewArea()" type="radio" id="bcpag_payment_method_pix" name="bc_payment_method" value="pix">
                             <label class="form-check-label" for="bcpag_payment_method_pix">
-                                PIX
+                                '.$labelPix.'
                             </label>
                         </div>
                     </div>';
@@ -64,11 +94,23 @@ class CheckoutForm
                 }
 
                 if ($this->options->enable_boleto == 'yes') {
+
+                    $labelBoleto = 'Boleto';
+                    
+                    if (isset($this->options->boleto_tax) && $this->options->boleto_tax > 0) {
+                        $tax = $this->options->boleto_tax;
+                        $amount = $totalCart; 
+                        $taxAmount = $amount * ($tax/100);
+                        $newAmount = ($amount + $taxAmount);
+
+                        $labelBoleto .= ' - ' . get_woocommerce_currency_symbol() . ' ' .number_format($newAmount, 2, ',', '.');
+                    }
+
                     $html .= '<div class="col-12">
                         <div class="form-check pl-2">
                             <input class="form-check-input mt-1" onchange="bcpagChangeViewArea()" type="radio" id="bcpag_payment_method_boleto" name="bc_payment_method" value="boleto">
                             <label class="form-check-label" for="bcpag_payment_method_boleto">
-                                Boleto
+                                '.$labelBoleto.'
                             </label>
                         </div>
                     </div>';

@@ -38,6 +38,14 @@ class Pix extends AbstractPayment implements PaymentInterface
         $expirationDate = date('Y-m-d H:i:s', $expirationTimestamp);
         $data['expiration_date'] = $expirationDate;
 
+        if (isset($this->settings['pix_tax'])) {
+            $tax = $this->settings['pix_tax'];
+            if (!empty($tax) && $tax > 0) {
+                $amount = $data['amount']; 
+                $taxAmount = (int) round(($amount * ($tax/100)), 0, PHP_ROUND_HALF_UP);
+                $data['amount'] = (int) ($amount + $taxAmount);
+            }
+        }
 
         $transaction = new Transactions($this->settings);
         $response = $transaction->create($data);
