@@ -166,18 +166,16 @@ function register_webhook_route() {
 
 function handle_webhook_request($request) {
     $rqd = $request->get_json_params();
+    var_dump($rqd);
+    die();
 
-    if (isset($rqd['model']) && $rqd['model'] == 'transactions') {
+    if (isset($rqd['model']) && $rqd['event'] == 'transaction.status_changed') {
         $transaction_id = $rqd['payload']['id'];
         $result = TransactionService::getTransactionById($transaction_id);
-
         if ($result) {
             $order = wc_get_order($result['order_id']);
             $orderService = new OrderService($order);
-
-            if (in_array($orderService->getPaymentMethod(), [PaymentService::PIX, PaymentService::BOLETO])){
-                $orderService->verifyStatus();
-            }
+            $orderService->verifyStatus();
         }
     }
 }

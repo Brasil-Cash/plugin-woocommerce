@@ -220,14 +220,11 @@ class OrderService
 
     public function verifyStatus()
     {
-        if (in_array($this->getPaymentMethod(), [PaymentService::PIX, PaymentService::BOLETO])){
-            $localTransaction = $this->getTransactionById($this->order->get_transaction_id());
-            if ($localTransaction) {
-                $plugin = new WC_Bcpag_Gateway();
-                $paymentService = new PaymentService($this, null, $plugin->getGateway());
-                $paymentService->checkStatus($localTransaction['transaction_id'], $localTransaction['transaction_status']);
-            }
-    
+        $localTransaction = $this->getTransactionById($this->order->get_transaction_id());
+        if ($localTransaction) {
+            $plugin = new WC_Bcpag_Gateway();
+            $paymentService = new PaymentService($this, null, $plugin->getGateway());
+            $paymentService->checkStatus($localTransaction['transaction_id'], $localTransaction['transaction_status']);
         }
     }
 
