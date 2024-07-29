@@ -5,7 +5,7 @@
  * Description: Receba pagamentos online de forma segura no seu ecommerce com a Brasil Cash.
  * Author: Brasil Cash
  * Author URI: https://brasilcash.com.br
- * Version: 1.4.0
+ * Version: 1.4.2
  */
 
 use Analog\Analog;
@@ -166,8 +166,6 @@ function register_webhook_route() {
 
 function handle_webhook_request($request) {
     $rqd = $request->get_json_params();
-    var_dump($rqd);
-    die();
 
     if (isset($rqd['model']) && $rqd['event'] == 'transaction.status_changed') {
         $transaction_id = $rqd['payload']['id'];
